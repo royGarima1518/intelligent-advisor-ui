@@ -8,12 +8,22 @@ body {
 }
 
 /* thin custom scrollbar for desktop */
+/* Global scrollbar style */
 @media (min-width: 768px) {
-  ::-webkit-scrollbar {
+  main::-webkit-scrollbar {
     width: 8px;
   }
-  ::-webkit-scrollbar-thumb {
+
+  main::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
