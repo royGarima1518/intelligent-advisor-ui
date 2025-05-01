@@ -9,7 +9,31 @@ export default function ChatInput({
   const [input, setInput] = useState("");
   const [showSug, setShowSug] = useState(false);
   const [highlight, setHighlight] = useState(0);
+  const [listening, setListening] = useState(false);
   const textRef = useRef(null);
+
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+  const handleVoiceInput = () => {
+    if (!recognition) return alert("Speech recognition not supported in this browser.");
+
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setListening(true);
+    recognition.onend = () => setListening(false);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev + " " + transcript);
+      setShowSug(true);
+    };
+
+    recognition.start();
+  };
 
   const filtered =
     input.length === 0
@@ -64,7 +88,7 @@ export default function ChatInput({
 
         <textarea
           ref={textRef}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-primary resize-none bg-transparent"
+          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-primary resize-none bg-transparent pr-20"
           rows={2}
           placeholder="Ask something..."
           value={input}
@@ -72,7 +96,7 @@ export default function ChatInput({
           onChange={(e) => {
             const val = e.target.value;
             setInput(val);
-            setShowSug(val.trim().length > 0);   {/* show list only after typing */}
+            setShowSug(val.trim().length > 0);   // show list only after typing
           }}
           onKeyDown={(e) => {
             if ((e.key === "Tab" || e.key === "ArrowRight") && inline) {
@@ -104,6 +128,18 @@ export default function ChatInput({
             }
           }}
         />
+
+        {/* mic button */}
+        <button
+          className={`absolute bottom-3 right-20 px-3 py-1 rounded-lg text-white ${
+            listening ? "bg-red-500 animate-pulse" : "bg-blue-500"
+          }`}
+          onClick={handleVoiceInput}
+          disabled={loading}
+          title="Voice Input"
+        >
+          🎤
+        </button>
       </div>
 
       {/* dropdown */}
